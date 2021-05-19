@@ -1,4 +1,4 @@
-INCLUDE_DIRS := /usr/include/SDL2/
+INCLUDE_DIRS := SDL2
 LIBRARY := /usr/lib/
 
 CC 			 := gcc

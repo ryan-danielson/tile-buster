@@ -139,8 +139,7 @@ int main( int argc, char* args[] )
         /* load media to window */
     
         puts("loading media");
-        if(!loadMedia(&gKeyPressSurfaces[0], &gRenderer, &mapTiles[0], &effects[0]))
-        {
+        if(!loadMedia(&gKeyPressSurfaces[0], &gRenderer, &mapTiles[0], &effects[0])) {
 	        puts("Failed to load media.");
 	        return 1;
         }
@@ -152,8 +151,7 @@ int main( int argc, char* args[] )
 	        puts("Error opening tilemap");    
     
         MapSize dimensions = mapDimensions(p);
-        if (&dimensions.x == NULL || &dimensions.y == NULL)
-        {
+        if (&dimensions.x == NULL || &dimensions.y == NULL) {
 	        puts("Failed to load map dimensions");
 	        return 1;
         }
@@ -162,17 +160,15 @@ int main( int argc, char* args[] )
         int map[dimensions.y][dimensions.x];
         MapTile mapArray[dimensions.y][dimensions.x];
     
-        if(!mapReader(p, dimensions, map, &mapArray[0], &mapTiles[0]))
-        {
+        if(!mapReader(p, dimensions, map, &mapArray[0], &mapTiles[0])) {
 	        puts("error reading map");
 	        return 1;
         }
         fclose(p);
-        puts("Media loaded");
+//        puts("Media loaded");
     
         /* print map and player starting position */
-        if(!mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, &mapArray[0]))
-        {
+        if(!mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, &mapArray[0])) {
 	        puts("Tile are empty in mapMaker()");
 	        return 1;
         }	
@@ -188,14 +184,10 @@ int main( int argc, char* args[] )
         Ball ball;
         ball.alive = 0;
 
-        while (!quit)
-        {       
-	        while (SDL_PollEvent(&e) != 0)
-	        {
+        while (!quit) {       
+	        while (SDL_PollEvent(&e) != 0) {
 		        if (e.type == SDL_QUIT)
-		        {
 			        quit = 1;
-	    	        }
 	        }
 
 	        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
@@ -204,28 +196,23 @@ int main( int argc, char* args[] )
                         if (!ball.alive) {
                                 if (playerRect->x - 16 >= 256) 
                                         playerRect->x -= 32;
-                        } else if (playerRect->x-16 >= 0) {
+                        } else if (playerRect->x-16 >= 0)
 		                playerRect->x -= 32;
-                        }
 	        } else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
 		        gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_PLAYER];
                         if (!ball.alive) {
                                 if (playerRect->x+103 <= 768)
                                         playerRect->x += 32;
-		        } else if (playerRect->x+104 <= 1024) {
+		        } else if (playerRect->x+104 <= 1024)
                                 playerRect->x += 32;
-                        }
 	        } else if (currentKeyStates[SDL_SCANCODE_SPACE]) {
 		        if (!ball.alive) {
                                 puts("New ball created");
                                 ball = ballLaunch(*playerRect);
-                    } 
+                        } 
                     
-	    }
-	    else
-	    {
-		    //gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
-	    }		
+	        } else
+		    //gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];	
 	
         SDL_RenderClear(gRenderer); 
         SDL_RenderCopy(gRenderer, backTexture, NULL, backRect);
@@ -286,36 +273,25 @@ int main( int argc, char* args[] )
 SDL_Window*
 init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer)
 {
-  puts("enter init");
     /* Initialize SDL */
-    if (SDL_Init( SDL_INIT_VIDEO || SDL_INIT_AUDIO) < 0)
-    {
+    if (SDL_Init( SDL_INIT_VIDEO || SDL_INIT_AUDIO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     	return 0;
-    }
-    else
-    {
+    } else {
         /*  Create window  */
         window = SDL_CreateWindow( "SDL Isometric", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-        if (window == NULL)
-        {
+        if (window == NULL) {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
             return 0;
-	}
-        else
-        {
+	} else {
 		*gRenderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED);
 		if (gRenderer == NULL)
-	        {
 			printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
-	        }	
-	        else
-	        { 
+	        else { 
 			SDL_SetRenderDrawColor(*gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
 	       		 int imgFlags = IMG_INIT_PNG;
-	        	if (!(IMG_Init(imgFlags) & imgFlags))
-	         	{
+	        	if (!(IMG_Init(imgFlags) & imgFlags)) {
 		                 printf("SDL_image could not initilize! SDL_image error: %s\n", IMG_GetError());
 	    	        	 return 0;
 		        }
@@ -327,7 +303,7 @@ init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer)
       	        }
 		puts("exit init");
        		return window;
-	    
+                	    
         }
     }
 }
@@ -348,20 +324,16 @@ loadMedia(SDL_Texture** gKeyPressSurfaces, SDL_Renderer** gRenderer, SDL_Texture
         effects[1] = Mix_LoadWAV("audio/destroy.wav");
 	/* check for NULL key press surfaces */
 
-	for (int i = 0; i < KEY_PRESS_SURFACE_TOTAL; ++i)
-	{
-		if (&gKeyPressSurfaces[i] == NULL)
-		{
+	for (int i = 0; i < KEY_PRESS_SURFACE_TOTAL; ++i) {
+		if (&gKeyPressSurfaces[i] == NULL) {
 			printf("Failed to load keypress surface %d\n", i);
 			return 0;
 		}
 	}
 
 	/* check for NULL tiles */
-	for (int i = 0; i < TOTAL_TILES; ++i)
-	{
-		if (&mapTiles[i] == NULL)
-		{
+	for (int i = 0; i < TOTAL_TILES; ++i) {
+		if (&mapTiles[i] == NULL) {
 			printf("Failed to load TILE%d\n", i);
 			return 0;
 		}
@@ -380,9 +352,7 @@ loadTexture(char* somePath, SDL_Renderer** gRenderer)
 
 	newTexture = SDL_CreateTextureFromSurface(*gRenderer, loadedSurface);
 	if (newTexture == NULL)
-	{
 		printf("Unable to create texture! SDL Error: %s\n", SDL_GetError());
-	}
 
 	/* free old surface */
 
@@ -407,10 +377,8 @@ mapReader(FILE* p, MapSize dimensions, int map[][dimensions.x], MapTile mapArray
 {
         int x = 0;
         int y = 0;
-        for (int i = 0; i < dimensions.y; ++i)
-	{
-		for (int k = 0; k < dimensions.x; ++k)
-		{
+        for (int i = 0; i < dimensions.y; ++i) {
+		for (int k = 0; k < dimensions.x; ++k) {
                          
 			fscanf(p, "%d", &map[i][k]);
                         if (map[i][k] != 0) {
@@ -442,23 +410,19 @@ mapReader(FILE* p, MapSize dimensions, int map[][dimensions.x], MapTile mapArray
                         }
                         x += 64;
                         
-			printf("%d ", map[i][k]);
+			// printf("%d ", map[i][k]);
 		}
-		puts(" ");
+		// puts(" ");
                 x = 0;
                 y += 32;
 	}
 	
-        
-
-
 	return 1;
 }
 
 int
 boundsCheck(MapSize dimensions, MapTile mapArray[][dimensions.x], Ball ball, SDL_Rect playerRect)
 {
-        puts("boundsCheck()");
         SDL_Rect temp;
         
         if (ball.ballRect.x >= 960 || ball.ballRect.x <= 0) {
@@ -486,16 +450,13 @@ _Bool
 mapDraw(SDL_Renderer* gRenderer, SDL_Rect* tileRect, SDL_Texture** mapTiles, MapSize dimensions, int map[][dimensions.x], MapTile mapArray[][dimensions.x])
 {
         puts("mapDraw()");
-	if(&mapTiles[0] == NULL || &mapTiles[1] == NULL || &mapTiles[2] == NULL)
-	{
+	if(&mapTiles[0] == NULL || &mapTiles[1] == NULL || &mapTiles[2] == NULL) {
 		puts("mapTiles has no content in mapMaker");
 		return 0;
 	}
 	
-	for (int i = 0; i < dimensions.y; ++i)
-	{
-		for (int k = 0; k < dimensions.x; ++k)
-		{       
+	for (int i = 0; i < dimensions.y; ++i) {
+		for (int k = 0; k < dimensions.x; ++k) {       
                         if (mapArray[i][k].alive == 1)
                                  SDL_RenderCopy(gRenderer, mapArray[i][k].texture, NULL, &mapArray[i][k].rect);
                 }
@@ -507,7 +468,6 @@ mapDraw(SDL_Renderer* gRenderer, SDL_Rect* tileRect, SDL_Texture** mapTiles, Map
 Ball
 ballLaunch(SDL_Rect playerRect)
 {
-        puts("ballLaunch()");
         Ball ballStart;
         ballStart.ballRect.x = playerRect.x+32;
         ballStart.ballRect.y = playerRect.y-64;
@@ -537,14 +497,13 @@ ballUpdate(Ball ball)
         ballUpdate.y += (ball.direction.y)*16;
         ballUpdate.w = ball.ballRect.w;
         ballUpdate.h = ball.ballRect.h;
-        printf("Ball: (%d, %d)\n", ballUpdate.x, ballUpdate.y);
+        // printf("Ball: (%d, %d)\n", ballUpdate.x, ballUpdate.y);
         return ballUpdate; 
 }
 
 Direction
 newAngle(Direction angle, int surface)
 {
-        puts("newAngle()");
         Direction newAngle;
         if (surface == WALL) {
                 newAngle.x = -(angle.x);
@@ -555,7 +514,6 @@ newAngle(Direction angle, int surface)
                 newAngle.y = -(angle.y);
         }
         return newAngle; 
-        //return angle;
 }
 
 void

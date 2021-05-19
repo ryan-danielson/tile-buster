@@ -7,4 +7,5 @@ A breakout clone written in C utilizing the SDL library.
 * $ profit!
 
 # Playing
-<kbd>Left Arrow-Right Arrow-Space</kbd>
+* Move: <kbd>left</kbd>, <kbd>right</kbd>
+* Launch: <kbd>space</kbd>

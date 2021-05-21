@@ -449,7 +449,7 @@ boundsCheck(MapSize dimensions, MapTile mapArray[][dimensions.x], Ball ball, SDL
 _Bool
 mapDraw(SDL_Renderer* gRenderer, SDL_Rect* tileRect, SDL_Texture** mapTiles, MapSize dimensions, int map[][dimensions.x], MapTile mapArray[][dimensions.x])
 {
-        puts("mapDraw()");
+//        puts("mapDraw()");
 	if(&mapTiles[0] == NULL || &mapTiles[1] == NULL || &mapTiles[2] == NULL) {
 		puts("mapTiles has no content in mapMaker");
 		return 0;
@@ -489,7 +489,7 @@ ballLaunch(SDL_Rect playerRect)
 SDL_Rect
 ballUpdate(Ball ball)
 {
-        puts("ballUpdate()");
+      //  puts("ballUpdate()");
         SDL_Rect ballUpdate;
         ballUpdate.x = ball.ballRect.x;
         ballUpdate.y = ball.ballRect.y;

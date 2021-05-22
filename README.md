@@ -1,5 +1,5 @@
 # tile-buster
-A breakout clone written in C utilizing the SDL library. 
+A breakout "clone" written in C utilizing the SDL library. 
 
 # Compiling
 * $ make
@@ -7,5 +7,5 @@ A breakout clone written in C utilizing the SDL library.
 * $ profit!
 
 # Playing
-* Move: <kbd>left</kbd>, <kbd>right</kbd>
+* Move: <kbd>left</kbd>, <kbd>right</kbd>, <kbd>a</kbd>, <kbd>d</kbd>
 * Launch: <kbd>space</kbd>

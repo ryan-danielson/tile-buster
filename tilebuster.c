@@ -22,7 +22,10 @@ char* PLAYER	= "Tiles/LAZER.png";
 char* BALL      = "Tiles/BALL.png";
 char* WIN       = "Tiles/WIN.png";
 char* LOSS      = "Tiles/LOSS.png";
-int TOTAL_TILES = 5;
+char* C_YES     = "Tiles/C_YES.png";
+char* C_NO      = "Tiles/C_NO.png";
+
+int TOTAL_TILES = 7;
 
 enum KeyPressSurfaces
 {
@@ -61,6 +64,7 @@ struct Ball
 };
 typedef struct Ball Ball;
 
+_Bool continueGame(void);
 SDL_Window* init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer);
 _Bool loadMedia(SDL_Texture** gKeyPressSurfaces, SDL_Renderer** gRenderer, SDL_Texture** mapTiles, Mix_Chunk **effects);
 SDL_Texture* loadTexture(char* somePath, SDL_Renderer** gRenderer);
@@ -76,8 +80,7 @@ void end(SDL_Window* window, SDL_Surface* screenSurface, SDL_Texture* gCurrentSu
 
 
 int main( int argc, char* args[] )
-{
-	
+{	
         SDL_Window* window = NULL;
         SDL_Surface* screenSurface = NULL;
         SDL_Texture* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
@@ -97,7 +100,7 @@ int main( int argc, char* args[] )
 
         _Bool quit = 0;
         SDL_Event e;	
-        gCurrentTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_PLAYER ];
+        gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_PLAYER];
 
         SDL_Rect* playerRect = NULL;
         playerRect = malloc(sizeof(SDL_Rect));
@@ -124,22 +127,37 @@ int main( int argc, char* args[] )
         SDL_Rect Loss;
         SDL_Texture *lossTexture; 
         Loss.w = 512;
-        Loss.h = 128;
+        Loss.h = 256;
         Loss.x = 256;
-        Loss.y = 320;
-       
+        Loss.y = 200;
+
+        SDL_Rect Continue_Y;
+        SDL_Texture *continueTextureY;
+        Continue_Y.w = 256;
+        Continue_Y.h = 128;
+        Continue_Y.x = 256;
+        Continue_Y.y = 456;
+      
+        SDL_Rect Continue_N;
+        SDL_Texture *continueTextureN;
+        Continue_N.w = 256;
+        Continue_N.h = 128;
+        Continue_N.x = 512;
+        Continue_N.y = 456;
+
         /* create window */
         window = init(window, screenSurface, &gRenderer);
         screenSurface = SDL_GetWindowSurface(window);
 
         backTexture = loadTexture(BACKGROUND, &gRenderer);
         lossTexture = loadTexture(LOSS, &gRenderer);
+        continueTextureY = loadTexture(C_YES, &gRenderer);
+        continueTextureN = loadTexture(C_NO, &gRenderer);
 
-        
         /* load media to window */
     
         puts("loading media");
-        if(!loadMedia(&gKeyPressSurfaces[0], &gRenderer, &mapTiles[0], &effects[0])) {
+        if (!loadMedia(&gKeyPressSurfaces[0], &gRenderer, &mapTiles[0], &effects[0])) {
 	        puts("Failed to load media.");
 	        return 1;
         }
@@ -160,15 +178,14 @@ int main( int argc, char* args[] )
         int map[dimensions.y][dimensions.x];
         MapTile mapArray[dimensions.y][dimensions.x];
     
-        if(!mapReader(p, dimensions, map, &mapArray[0], &mapTiles[0])) {
+        if (!mapReader(p, dimensions, map, &mapArray[0], &mapTiles[0])) {
 	        puts("error reading map");
 	        return 1;
         }
         fclose(p);
-//        puts("Media loaded");
     
         /* print map and player starting position */
-        if(!mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, &mapArray[0])) {
+        if      (!mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, &mapArray[0])) {
 	        puts("Tile are empty in mapMaker()");
 	        return 1;
         }	
@@ -191,14 +208,14 @@ int main( int argc, char* args[] )
 	        }
 
 	        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-	        if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+	        if (currentKeyStates[SDL_SCANCODE_LEFT] || currentKeyStates[SDL_SCANCODE_A]) {
 		        gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_PLAYER];
                         if (!ball.alive) {
                                 if (playerRect->x - 16 >= 256) 
                                         playerRect->x -= 32;
                         } else if (playerRect->x-16 >= 0)
 		                playerRect->x -= 32;
-	        } else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+	        } else if (currentKeyStates[SDL_SCANCODE_RIGHT] || currentKeyStates[SDL_SCANCODE_D]) {
 		        gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_PLAYER];
                         if (!ball.alive) {
                                 if (playerRect->x+103 <= 768)
@@ -214,60 +231,81 @@ int main( int argc, char* args[] )
 	        } else
 		    //gCurrentTexture = gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];	
 	
-        SDL_RenderClear(gRenderer); 
-        SDL_RenderCopy(gRenderer, backTexture, NULL, backRect);
-	mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, mapArray);
-	SDL_RenderCopy(gRenderer, gCurrentTexture, NULL, playerRect);
-	if (ball.alive) {
-                ball.ballRect = ballUpdate(ball);
-
-                switch (boundsCheck(dimensions, mapArray, ball, *playerRect)) {
-                case 0:
+                SDL_RenderClear(gRenderer); 
+                SDL_RenderCopy(gRenderer, backTexture, NULL, backRect);
+	        mapDraw(gRenderer, tileRect, mapTiles, dimensions, map, mapArray);
+	        SDL_RenderCopy(gRenderer, gCurrentTexture, NULL, playerRect);
+	        if (ball.alive) {
                         ball.ballRect = ballUpdate(ball);
-                        SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
-                        break;
-                case 1:
-                        ball.direction = newAngle(ball.direction, CEILING);
-                        ball.ballRect  = ballUpdate(ball);
-                        Mix_PlayChannel(-1, effects[0], 0);
-                        SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
-                        break;
-                case 2:
-                        ball.direction = newAngle(ball.direction, WALL);
-                        ball.ballRect  = ballUpdate(ball);
-                        Mix_PlayChannel(-1, effects[0], 0);
-                        SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
-                        break;
-                case -1:                 
-                        SDL_RenderCopy(gRenderer, lossTexture, NULL, &Loss);
-                        SDL_RenderPresent(gRenderer); 
-                        SDL_Delay(500);
-                        quit = 1;
-                        break;
-                default:
-                //        ball.ballRect = ballUpdate(ball);
-                        break;
-                }
-           }
-        SDL_RenderPresent(gRenderer);
-        SDL_Delay(40);
-    }
-    
 
-    /* cleanup and exit */
-    SDL_DestroyRenderer(gRenderer);
-    Mix_FreeChunk(effects[0]);
-    Mix_FreeChunk(effects[1]);
-    effects[0] = NULL;
-    effects[1] = NULL;
-    free(tileRect);
-    free(playerRect);
-    free(backRect);
-    SDL_DestroyTexture(backTexture);
-    Mix_Quit();
-    IMG_Quit();
-    end(window, screenSurface, gCurrentTexture, &gKeyPressSurfaces[0], &mapTiles[0]);
-    return 0;
+                        switch (boundsCheck(dimensions, mapArray, ball, *playerRect)) {
+                        case 0:
+                                ball.ballRect = ballUpdate(ball);
+                                SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
+                                break;
+                        case 1:
+                                ball.direction = newAngle(ball.direction, CEILING);
+                                ball.ballRect  = ballUpdate(ball);
+                                Mix_PlayChannel(-1, effects[0], 0);
+                                SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
+                                break;
+                        case 2:
+                                ball.direction = newAngle(ball.direction, WALL);
+                                ball.ballRect  = ballUpdate(ball);
+                                Mix_PlayChannel(-1, effects[0], 0);
+                                SDL_RenderCopy(gRenderer, gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL], NULL, &ball.ballRect);
+                                break;
+                        case -1:                 
+                                SDL_RenderCopy(gRenderer, lossTexture, NULL, &Loss);
+                                SDL_RenderCopy(gRenderer, continueTextureY, NULL, &Continue_Y);
+                                SDL_RenderCopy(gRenderer, continueTextureN, NULL, &Continue_N);
+                                SDL_RenderPresent(gRenderer); 
+                                SDL_Delay(500);
+
+                                quit = continueGame();
+                                ball.alive = 0;
+
+                                break;
+                        default:
+                //        ball.ballRect = ballUpdate(ball);
+                                break;
+                        }       
+                }
+                SDL_RenderPresent(gRenderer);
+                SDL_Delay(40);
+        }
+    
+        /* cleanup and exit */
+        SDL_DestroyRenderer(gRenderer);
+        Mix_FreeChunk(effects[0]);
+        Mix_FreeChunk(effects[1]);
+        effects[0] = NULL;
+        effects[1] = NULL;
+        free(tileRect);
+        free(playerRect);
+        free(backRect);
+        SDL_DestroyTexture(backTexture);
+        Mix_Quit();
+        IMG_Quit();
+        end(window, screenSurface, gCurrentTexture, &gKeyPressSurfaces[0], &mapTiles[0]);
+        return 0;
+}
+
+_Bool
+continueGame(void)
+{
+        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+
+        SDL_Event e;
+
+        while (SDL_WaitEvent(&e)) {
+                if (currentKeyStates[SDL_SCANCODE_N])
+                        return 1;
+                else if (e.type == SDL_QUIT)
+                        return 1;
+                else if (currentKeyStates[SDL_SCANCODE_Y])
+                        return 0;        
+        }
 }
 
 SDL_Window*
@@ -279,8 +317,8 @@ init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer)
     	return 0;
     } else {
         /*  Create window  */
-        window = SDL_CreateWindow( "SDL Isometric", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-        if (window == NULL) {
+        window = SDL_CreateWindow("SDL Isometric", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        if (!window) {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
             return 0;
 	} else {
@@ -302,8 +340,7 @@ init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer)
                         }
       	        }
 		puts("exit init");
-       		return window;
-                	    
+       		return window;                	    
         }
     }
 }
@@ -312,8 +349,8 @@ _Bool
 loadMedia(SDL_Texture** gKeyPressSurfaces, SDL_Renderer** gRenderer, SDL_Texture** mapTiles, Mix_Chunk **effects)
 {
 
-	gKeyPressSurfaces[ KEY_PRESS_SURFACE_PLAYER ] = loadTexture(PLAYER, gRenderer);
-	gKeyPressSurfaces[ KEY_PRESS_SURFACE_BALL ] = loadTexture(BALL, gRenderer);
+	gKeyPressSurfaces[KEY_PRESS_SURFACE_PLAYER] = loadTexture(PLAYER, gRenderer);
+	gKeyPressSurfaces[KEY_PRESS_SURFACE_BALL] = loadTexture(BALL, gRenderer);
 
 	mapTiles[0] = loadTexture(TILE1, gRenderer);
 	mapTiles[1] = loadTexture(TILE2, gRenderer);
@@ -338,7 +375,7 @@ loadMedia(SDL_Texture** gKeyPressSurfaces, SDL_Renderer** gRenderer, SDL_Texture
 			return 0;
 		}
 	}
-	puts("exit loadMedia");
+//	puts("exit loadMedia");
 	return 1;
 }
 
@@ -357,7 +394,7 @@ loadTexture(char* somePath, SDL_Renderer** gRenderer)
 	/* free old surface */
 
 	SDL_FreeSurface(loadedSurface);
-	puts("exit loadTexture");
+//	puts("exit loadTexture");
 	return newTexture;
 }
 
@@ -433,15 +470,13 @@ boundsCheck(MapSize dimensions, MapTile mapArray[][dimensions.x], Ball ball, SDL
                 return GAME_OVER;
         } else if (SDL_IntersectRect(&playerRect, &ball.ballRect, &temp) && ball.direction.y > 0) {
                 return CEILING;
-        } else  if (ball.ballRect.y <= 192) {
-                for (int i = 0; i < dimensions.y; ++i) {
-                        for (int j = 0; j < dimensions.x; ++j) {
-                                if (SDL_IntersectRect(&ball.ballRect, &mapArray[i][j].rect, &temp) && mapArray[i][j].alive == 1) { 
-                                        mapArray[i][j].alive = 0;                             
-                                        return CEILING;
-                                }
-                        }
-                }
+        } else  if (ball.ballRect.y <= 192) { 
+                if (SDL_IntersectRect(&ball.ballRect, &mapArray[ball.ballRect.y/30][ball.ballRect.x/62].rect, &temp) 
+                        && mapArray[ball.ballRect.y/30][ball.ballRect.x/62].alive == 1) { 
+                        mapArray[ball.ballRect.y/30][ball.ballRect.x/62].alive = 0;                             
+                        
+                        return CEILING;
+                }  
         }
 	return 0;
 }
@@ -493,8 +528,8 @@ ballUpdate(Ball ball)
         SDL_Rect ballUpdate;
         ballUpdate.x = ball.ballRect.x;
         ballUpdate.y = ball.ballRect.y;
-        ballUpdate.x += (ball.direction.x)*16;
-        ballUpdate.y += (ball.direction.y)*16;
+        ballUpdate.x += (ball.direction.x)*8;
+        ballUpdate.y += (ball.direction.y)*8;
         ballUpdate.w = ball.ballRect.w;
         ballUpdate.h = ball.ballRect.h;
         // printf("Ball: (%d, %d)\n", ballUpdate.x, ballUpdate.y);

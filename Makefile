@@ -1,5 +1,7 @@
-INCLUDE_DIRS := SDL2
-LIBRARY := /usr/lib/
+CURRENT_DIR := $(shell pwd)
+INCLUDE_DIRS := /usr/include/SDL2/
+LIBRARY := /usr/include/
+
 
 CC 			 := gcc
 CFLAGS 		 := -I$(INCLUDE_DIRS) -L$(LIBRARY) -lSDL2 -lSDL2_image -lSDL2_mixer

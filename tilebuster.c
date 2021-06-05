@@ -165,7 +165,7 @@ int main( int argc, char* args[] )
         /* open and close tile map */
 
         FILE *p = fopen("tilemap.txt", "rw+");
-        if (p == NULL)
+        if (!p)
 	        puts("Error opening tilemap");    
     
         MapSize dimensions = mapDimensions(p);
@@ -384,17 +384,17 @@ loadTexture(char* somePath, SDL_Renderer** gRenderer)
 {
 	SDL_Texture* newTexture = NULL;
 	SDL_Surface* loadedSurface = IMG_Load(somePath);
-	if (loadedSurface == NULL)
+	if (!loadedSurface)
 		puts("Unable to load image");
 
 	newTexture = SDL_CreateTextureFromSurface(*gRenderer, loadedSurface);
-	if (newTexture == NULL)
+	if (!newTexture)
 		printf("Unable to create texture! SDL Error: %s\n", SDL_GetError());
 
 	/* free old surface */
 
 	SDL_FreeSurface(loadedSurface);
-//	puts("exit loadTexture");
+
 	return newTexture;
 }
 
@@ -446,10 +446,7 @@ mapReader(FILE* p, MapSize dimensions, int map[][dimensions.x], MapTile mapArray
                                 mapArray[i][k].texture = mapTiles[0];
                         }
                         x += 64;
-                        
-			// printf("%d ", map[i][k]);
 		}
-		// puts(" ");
                 x = 0;
                 y += 32;
 	}
@@ -462,15 +459,15 @@ boundsCheck(MapSize dimensions, MapTile mapArray[][dimensions.x], Ball ball, SDL
 {
         SDL_Rect temp;
         
-        if (ball.ballRect.x >= 960 || ball.ballRect.x <= 0) {
+        if (ball.ballRect.x >= 960 || ball.ballRect.x <= 0)
                 return WALL;
-        } else if (ball.ballRect.y <= 0) {
+        else if (ball.ballRect.y <= 0)
                 return CEILING; 
-        } else if (ball.ballRect.y > 702) {
+        else if (ball.ballRect.y > 702)
                 return GAME_OVER;
-        } else if (SDL_IntersectRect(&playerRect, &ball.ballRect, &temp) && ball.direction.y > 0) {
+        else if (SDL_IntersectRect(&playerRect, &ball.ballRect, &temp) && ball.direction.y > 0)
                 return CEILING;
-        } else  if (ball.ballRect.y <= 192) { 
+        else  if (ball.ballRect.y <= 192) { 
                 if (SDL_IntersectRect(&ball.ballRect, &mapArray[ball.ballRect.y/30][ball.ballRect.x/62].rect, &temp) 
                         && mapArray[ball.ballRect.y/30][ball.ballRect.x/62].alive == 1) { 
                         mapArray[ball.ballRect.y/30][ball.ballRect.x/62].alive = 0;                             
@@ -484,7 +481,6 @@ boundsCheck(MapSize dimensions, MapTile mapArray[][dimensions.x], Ball ball, SDL
 _Bool
 mapDraw(SDL_Renderer* gRenderer, SDL_Rect* tileRect, SDL_Texture** mapTiles, MapSize dimensions, int map[][dimensions.x], MapTile mapArray[][dimensions.x])
 {
-//        puts("mapDraw()");
 	if(&mapTiles[0] == NULL || &mapTiles[1] == NULL || &mapTiles[2] == NULL) {
 		puts("mapTiles has no content in mapMaker");
 		return 0;
@@ -524,7 +520,6 @@ ballLaunch(SDL_Rect playerRect)
 SDL_Rect
 ballUpdate(Ball ball)
 {
-      //  puts("ballUpdate()");
         SDL_Rect ballUpdate;
         ballUpdate.x = ball.ballRect.x;
         ballUpdate.y = ball.ballRect.y;
@@ -532,7 +527,7 @@ ballUpdate(Ball ball)
         ballUpdate.y += (ball.direction.y)*8;
         ballUpdate.w = ball.ballRect.w;
         ballUpdate.h = ball.ballRect.h;
-        // printf("Ball: (%d, %d)\n", ballUpdate.x, ballUpdate.y);
+
         return ballUpdate; 
 }
 
@@ -569,5 +564,3 @@ end(SDL_Window* window, SDL_Surface* screenSurface, SDL_Texture* gCurrentSurface
 	/* quite SDL subsystem */
 	SDL_Quit();
 }
-
-

@@ -1,5 +1,5 @@
 # tile-buster
-A breakout "clone" written in C utilizing the SDL library.
+A primitive breakout "clone" written in C utilizing the SDL library.
 
 ## Dependancies
 Requires the SDL2 library be installed. Read: https://wiki.libsdl.org/Installation

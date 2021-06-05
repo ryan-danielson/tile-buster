@@ -317,7 +317,7 @@ init(SDL_Window* window, SDL_Surface* screenSurface, SDL_Renderer** gRenderer)
     	return 0;
     } else {
         /*  Create window  */
-        window = SDL_CreateWindow("SDL Isometric", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        window = SDL_CreateWindow("Tile-Buster", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (!window) {
             printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
             return 0;
